@@ -4,8 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import control as ctl
-from tkinter import messagebox
-
+from tkinter import messagebox, ttk
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path(r"/home/farinellizin/Desktop/build/assets/frame0")
@@ -20,20 +19,26 @@ def stringToArray(num, den):
     return numArrInt, denArrInt
 
 def verifyValues(num, den):
+    valid_chars = set("0123456789- ")  # Adiciona o caractere "-" aos caracteres válidos
+
     for element in num:
-        if not element.isdigit() and not element == " ":
-            messagebox.showerror('Input Error', 'Only numeric values and spaces are accepted in the numerator input')
+        if element not in valid_chars:
+            messagebox.showerror('Input Error', 'Only numeric values, spaces, and "-" are accepted in the numerator input')
             return
 
     for element in den:
-        if not element.isdigit() and not element == " ":
-            messagebox.showerror('Input Error', 'Only numeric values and spaces are accepted in the denominator input')
+        if element not in valid_chars:
+            messagebox.showerror('Input Error', 'Only numeric values, spaces, and "-" are accepted in the denominator input')
             return
     
     numArr, denArr = stringToArray(num, den)
     return numArr, denArr
 
 def plotWithoutControl(system, FTMF, den):
+    # if figure1 is not None and bar1 is not None: #! FUNCIONA.
+    #     # Destrua o Canvas do primeiro gráfico
+    #     bar1.get_tk_widget().destroy()
+
     time, response = ctl.step_response(FTMF)
     stepInfo = ctl.step_info(FTMF)
     
@@ -41,26 +46,26 @@ def plotWithoutControl(system, FTMF, den):
     xout, yout = ctl.step_response(FTMF, time_simulation)
 
     # de fato plotar e inserir no tkinter # ! GRÁFICO DA RESPOSTA AO DEGRAU
-    figure1 = plt.figure(figsize=(4, 4), dpi=100)
+    figure1 = plt.figure(figsize=(4.2, 4.2), dpi=100)
     ax1 = figure1.add_subplot(111)
     bar1 = FigureCanvasTkAgg(figure1, window)
-    bar1.get_tk_widget().place(x=450, y=10)
+    bar1.get_tk_widget().place(x=450, y=80)
     ax1.plot(xout, yout)
 
     # de fato obter polos e inserir no tkinter # ! GRÁFICO DOS POLOS
-    figure2 = plt.figure(figsize=(4, 4), dpi=100)
+    figure2 = plt.figure(figsize=(4.2, 4.2), dpi=100)
     roots, _ = ctl.root_locus(system, plot=True)
     bar2 = FigureCanvasTkAgg(plt.gcf(), window)
-    bar2.get_tk_widget().place(x=950, y=10)
+    bar2.get_tk_widget().place(x=950, y=80)
 
     # de fato obter bode e inserir no tkinter
-    figure3 = plt.figure(figsize=(4, 4), dpi=100)
+    figure3 = plt.figure(figsize=(4.2, 4.2), dpi=100)
     ax3 = figure3.add_subplot(111)
     frequency = np.logspace(-1, 2, 100)
     _, mag, phase = ctl.bode_plot(system, omega=frequency, dB=True)
     ax3.semilogx(frequency, mag)
     bar3 = FigureCanvasTkAgg(figure3, window)
-    bar3.get_tk_widget().place(x=1450, y=10)
+    bar3.get_tk_widget().place(x=1450, y=80)
 
     # Dados função de Transferência sem controle
     roots = np.roots(den)
@@ -81,13 +86,14 @@ def plotWithoutControl(system, FTMF, den):
     overshootPercentage = stepInfo['Overshoot']
     print(overshootPercentage) # Ultrapassagem percentual
 
-    # Erro em regime permanente
-
     # Valor final
     finalValue = stepInfo['SteadyStateValue']
     print(finalValue) # Valor final
 
+    return roots, maxPeakValue, peakTime, settlingTime, overshootPercentage, finalValue
+
 def plotWithControl(system, FTMF, den):
+    plt.close()
     time, response = ctl.step_response(FTMF)
     stepInfo = ctl.step_info(FTMF)
 
@@ -95,26 +101,27 @@ def plotWithControl(system, FTMF, den):
     xout, yout = ctl.step_response(FTMF, time_simulation)
 
     # de fato plotar e inserir no tkinter # ! GRÁFICO DA RESPOSTA AO DEGRAU
-    figure1 = plt.figure(figsize=(4, 4), dpi=100)
+    figure1 = plt.figure(figsize=(4.2, 4.2), dpi=100)
     ax1 = figure1.add_subplot(111)
     bar1 = FigureCanvasTkAgg(figure1, window)
-    bar1.get_tk_widget().place(x=450, y=500)
+    bar1.get_tk_widget().place(x=450, y=575)
     ax1.plot(xout, yout)
 
     # de fato obter polos e inserir no tkinter # ! GRÁFICO DOS POLOS
-    figure2 = plt.figure(figsize=(4, 4), dpi=100)
+    figure2 = plt.figure(figsize=(4.2, 4.2), dpi=100)
+    plt.legend().set_visible(False)
     roots, _ = ctl.root_locus(FTMF, plot=True)
     bar2 = FigureCanvasTkAgg(plt.gcf(), window)
-    bar2.get_tk_widget().place(x=950, y=500)
+    bar2.get_tk_widget().place(x=950, y=575)
 
     # de fato obter bode e inserir no tkinter
-    figure3 = plt.figure(figsize=(4, 4), dpi=100)
+    figure3 = plt.figure(figsize=(4.2, 4.2), dpi=100)
     ax3 = figure3.add_subplot(111)
     frequency = np.logspace(-1, 2, 100)
     _, mag, phase = ctl.bode_plot(FTMF, omega=frequency, dB=True, plot=True)
     ax3.semilogx(frequency, mag)
     bar3 = FigureCanvasTkAgg(figure3, window)
-    bar3.get_tk_widget().place(x=1450, y=500)
+    bar3.get_tk_widget().place(x=1450, y=575)
 
     # Dados função de Transferência sem controle
     roots = np.roots(den)
@@ -135,26 +142,32 @@ def plotWithControl(system, FTMF, den):
     overshootPercentage = stepInfo['Overshoot']
     print(overshootPercentage) # Ultrapassagem percentual
 
-    # Erro em regime permanente
-
     # Valor final
     finalValue = stepInfo['SteadyStateValue']
     print(finalValue) # Valor final
 
+    return roots, maxPeakValue, peakTime, settlingTime, overshootPercentage, finalValue
 
 def updateData():
-    # if figure1 is not None and bar1 is not None: #! FUNCIONA.
-    #     # Destrua o Canvas do primeiro gráfico
-    #     bar1.get_tk_widget().destroy()
-
     if not entry_3.get() and entry_4.get() and entry_5.get():
         messagebox.showerror('PID Error', 'The combination integrative-derivative is not supported')
         return
 
     numeratorEntry = entry_1.get()
     denominatorEntry = entry_2.get()
+    
+    rootsControl = ''
+    maxPeakValueControl = ''
+    peakTimeControl = ''
+    settlingTimeControl = ''
+    overshootPercentageControl = ''
+    finalValueControl = ''
 
     num, den = verifyValues(numeratorEntry, denominatorEntry)
+
+    if len(num) > len(den):
+        messagebox.showerror('Data Error', 'There`s no such system with more zeros than poles')
+        return
 
     system = ctl.TransferFunction(num, den)
     FTMF = ctl.minreal(system / (1 + system))
@@ -162,33 +175,33 @@ def updateData():
     if entry_3.get() and not entry_4.get() and not entry_5.get(): # proporcional
         K = int(entry_3.get())
         FTMFP = ctl.minreal((K * system) / (1 + (K * system)))
-        plotWithControl(system, FTMFP, den)
+        rootsControl, maxPeakValueControl, peakTimeControl, settlingTimeControl, overshootPercentageControl, finalValueControl = plotWithControl(system, FTMFP, den)
         
     elif not entry_3.get() and entry_4.get() and not entry_5.get(): # integrativa
         Ki = int(entry_4.get())
         integralController = ctl.TransferFunction(Ki, [1, 0])
         FTMFI = ctl.minreal((integralController * system) / (1 + (integralController * system)))
-        plotWithControl(system, FTMFI, den)
+        rootsControl, maxPeakValueControl, peakTimeControl, settlingTimeControl, overshootPercentageControl, finalValueControl = plotWithControl(system, FTMFI, den)
 
     elif not entry_3.get() and not entry_4.get() and entry_5.get(): # derivativa
         Kd = int(entry_5.get())
         derivativeController = ctl.TransferFunction([Kd, 0], [1]) # ? perguntar thabatta
         FTMFD = ctl.minreal((derivativeController * system) / (1 + (derivativeController * system)))
-        plotWithControl(system, FTMFD, den)
+        rootsControl, maxPeakValueControl, peakTimeControl, settlingTimeControl, overshootPercentageControl, finalValueControl = plotWithControl(system, FTMFD, den)
 
     elif entry_3.get() and entry_4.get() and not entry_5.get(): # proporcional - integrativa
         K = int(entry_3.get())
         Ki = int(entry_4.get())
         PIController = ctl.TransferFunction([K, Ki], [1, 0])
         FTMFPI = ctl.minreal((PIController * system) / (1 + (PIController * system)))
-        plotWithControl(system, FTMFPI, den)
+        rootsControl, maxPeakValueControl, peakTimeControl, settlingTimeControl, overshootPercentageControl, finalValueControl = plotWithControl(system, FTMFPI, den)
 
     elif entry_3.get() and not entry_4.get() and entry_5.get(): # proporcional - derivativa
         K = int(entry_3.get())
         Kd = int(entry_5.get())
         PDController = ctl.TransferFunction([K, Kd], [1])
         FTMFPD = ctl.minreal((PDController * system) / (1 + (PDController * system)))
-        plotWithControl(system, FTMFPD, den)
+        rootsControl, maxPeakValueControl, peakTimeControl, settlingTimeControl, overshootPercentageControl, finalValueControl = plotWithControl(system, FTMFPD, den)
 
     elif entry_3.get() and entry_4.get() and entry_5.get(): # proporcional - integrativa - derivativa
         K = int(entry_3.get())
@@ -196,10 +209,49 @@ def updateData():
         Kd = int(entry_5.get())
         PIDController = ctl.TransferFunction([Kd, K, Ki], [1, 0])
         FTMFPID = ctl.minreal((PIDController * system) / (1 + (PIDController * system)))
-        plotWithControl(system, FTMFPID, den)
+        rootsControl, maxPeakValueControl, peakTimeControl, settlingTimeControl, overshootPercentageControl, finalValueControl = plotWithControl(system, FTMFPID, den)
 
-    plotWithoutControl(system, FTMF, den)
+    roots, maxPeakValue, peakTime, settlingTime, overshootPercentage, finalValue = plotWithoutControl(system, FTMF, den)
 
+    # ! COMEÇA AQUI AS CAGADA
+    if entry_3.get() or entry_4.get() or entry_5.get():
+        dados_tabela = [
+            ("Raízes", roots, rootsControl),
+            ("Valor de Pico", f'{maxPeakValue:.3f}', f'{maxPeakValueControl:.3f}'),
+            ("Pico (t)", f'{peakTime:.3f}', f'{peakTimeControl:.3f}'),
+            ("Estabilização (t)", f'{settlingTime:.3f}', f'{settlingTimeControl:.3f}'),
+            ("Overshoot (%)", f'{overshootPercentage:.3f}', f'{overshootPercentageControl:.3f}'),
+            ("Valor final", f'{finalValue:.3f}', f'{finalValueControl:.3f}')
+        ]
+    else:
+        dados_tabela = [
+            ("Raízes", roots, '[]'),
+            ("Valor de Pico", f'{maxPeakValue:.3f}', 0),
+            ("Pico (t)", f'{peakTime:.3f}', 0),
+            ("Estabilização (t)", f'{settlingTime:.3f}', 0),
+            ("Overshoot (%)", f'{overshootPercentage:.3f}', 0),
+            ("Valor final", f'{finalValue:.3f}', 0)
+        ]
+
+    style = ttk.Style()
+    style.configure("Treeview", background='black', foreground="white")
+
+    table = ttk.Treeview(window, height=6, style="Treeview")
+    table['columns'] = ('', 'Sem controle', 'Com controle')
+    table.column('#0', width=0, stretch=False)
+    table.column('', anchor="center", width=120)
+    table.column('Sem controle', anchor="center", width=120)
+    table.column('Com controle', anchor="center", width=120)
+
+    table.heading('#0', text='', anchor="center")
+    table.heading('', text='', anchor="center")
+    table.heading('Sem controle', text='Sem controle', anchor="center")
+    table.heading('Com controle', text='Com controle', anchor="center")
+
+    for i, (rotulo_linha, valor_coluna1, valor_coluna2) in enumerate(dados_tabela, start=0):
+        table.insert(parent='', index=i, iid=i, text='', values=(rotulo_linha, valor_coluna1, valor_coluna2))
+
+    table.place(x=18, y=550)
     
 
 
@@ -264,7 +316,7 @@ canvas.create_rectangle(
     outline="")
 
 canvas.create_text(
-    34.0,
+    28.0,
     230.0,
     anchor="nw",
     text="Denumeradores:",
@@ -273,7 +325,7 @@ canvas.create_text(
 )
 
 canvas.create_text(
-    34.0,
+    28.0,
     185.0,
     anchor="nw",
     text="Numeradores:",
@@ -282,10 +334,10 @@ canvas.create_text(
 )
 
 canvas.create_text(
-    3.0,
+    105.0,
     150.0,
     anchor="nw",
-    text="Coeficientes da Função de Transferência",
+    text="Coeficientes da FT",
     fill="#FFFFFF",
     font=("ReadexPro Regular", 20 * -1)
 )
@@ -408,7 +460,7 @@ entry_5.place(
 )
 
 canvas.create_text(
-    35.0,
+    28.0,
     330.0,
     anchor="nw",
     text="Proporcional:",
@@ -417,7 +469,7 @@ canvas.create_text(
 )
 
 canvas.create_text(
-    20.0,
+    28.0,
     416.0,
     anchor="nw",
     text="Derivativa:",
@@ -426,11 +478,29 @@ canvas.create_text(
 )
 
 canvas.create_text(
-    34.0,
+    28,
     373.0,
     anchor="nw",
     text="Integrativa:",
     fill="#FFFFFF",
+    font=("ReadexPro Regular", 20 * -1)
+)
+
+canvas.create_text(
+    1000.0,
+    525.0,
+    anchor="nw",
+    text="Gráficos com controle aplicado",
+    fill="#000000",
+    font=("ReadexPro Regular", 20 * -1)
+)
+
+canvas.create_text(
+    1000.0,
+    30.0,
+    anchor="nw",
+    text="Gráficos sem controle aplicado",
+    fill="#000000",
     font=("ReadexPro Regular", 20 * -1)
 )
 
