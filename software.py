@@ -105,6 +105,14 @@ def verifyValues(num, den):
 
 def plotGetData(FTMF, den, control):
     if control:
+        canvas.create_text(
+            1000.0,
+            525.0,
+            anchor="nw",
+            text="Gráficos com controle aplicado",
+            fill="#000000",
+            font=("ReadexPro Regular", 20 * -1)
+        )
         y = 575
     else:
         y = 80
@@ -287,7 +295,7 @@ def updateData():
     table = ttk.Treeview(window, height=11, style="Treeview")
     table['columns'] = ('', 'Sem controle', 'Com controle')
     table.column('#0', width=0, stretch=False)
-    table.column('', anchor="center", width=120)
+    table.column('', anchor="center", width=140)
     table.column('Sem controle', anchor="center", width=120)
     table.column('Com controle', anchor="center", width=120)
 
@@ -299,7 +307,7 @@ def updateData():
     for i, (rotulo_linha, valor_coluna1, valor_coluna2) in enumerate(dados_tabela, start=0):
         table.insert(parent='', index=i, iid=i, text='', values=(rotulo_linha, valor_coluna1, valor_coluna2))
 
-    table.place(x=18, y=550)
+    table.place(x=8, y=550)
     
 
 def relative_to_assets(path: str) -> Path:
@@ -530,15 +538,6 @@ canvas.create_text(
     anchor="nw",
     text="Integrativa:",
     fill="#FFFFFF",
-    font=("ReadexPro Regular", 20 * -1)
-)
-
-canvas.create_text(
-    1000.0,
-    525.0,
-    anchor="nw",
-    text="Gráficos com controle aplicado",
-    fill="#000000",
     font=("ReadexPro Regular", 20 * -1)
 )
 
