@@ -19,7 +19,7 @@ def stringToArray(num, den):
     return numArrInt, denArrInt
 
 def verifyValues(num, den):
-    valid_chars = set("0123456789- ")  # Adiciona o caractere "-" aos caracteres válidos
+    valid_chars = set("0123456789- ")
 
     for element in num:
         if element not in valid_chars:
@@ -34,85 +34,104 @@ def verifyValues(num, den):
     numArr, denArr = stringToArray(num, den)
     return numArr, denArr
 
-def plotWithoutControl(system, FTMF, den):
-    # if figure1 is not None and bar1 is not None: #! FUNCIONA.
-    #     # Destrua o Canvas do primeiro gráfico
-    #     bar1.get_tk_widget().destroy()
+# def plotWithoutControl(FTMF, den):
+#     time, response = ctl.step_response(FTMF)
+#     stepInfo = ctl.step_info(FTMF)
+
+#     time_simulation = np.arange(0, 15, 0.05, dtype=float)
+#     xout, yout = ctl.step_response(FTMF, time_simulation)
+
+#     omega, magnitude, phase = ctl.bode(FTMF)
+#     frequencyCutoffIndex = np.argmax(magnitude < -3)
+
+#     marginGain, phaseGain, _, _ = ctl.margin(FTMF) 
+
+#     # de fato plotar e inserir no tkinter # ! GRÁFICO DA RESPOSTA AO DEGRAU
+#     figure1 = plt.figure(figsize=(4.2, 4.2), dpi=100)
+#     ax1 = figure1.add_subplot(111)
+#     bar1 = FigureCanvasTkAgg(figure1, window)
+#     bar1.get_tk_widget().place(x=450, y=80)
+#     ax1.plot(xout, yout)
+
+#     # de fato obter polos e inserir no tkinter # ! GRÁFICO DOS POLOS
+#     figure2 = plt.figure(figsize=(4.2, 4.2), dpi=100)
+#     roots, _ = ctl.root_locus(FTMF, plot=True)
+#     bar2 = FigureCanvasTkAgg(plt.gcf(), window)
+#     bar2.get_tk_widget().place(x=950, y=80)
+
+#     # de fato obter bode e inserir no tkinter
+#     figure3 = plt.figure(figsize=(4.2, 4.2), dpi=100)
+#     ax3 = figure3.add_subplot(111)
+#     frequency = np.logspace(-1, 2, 100)
+#     _, mag, phase = ctl.bode_plot(FTMF, omega=frequency, dB=True)
+#     ax3.semilogx(frequency, mag)
+#     bar3 = FigureCanvasTkAgg(figure3, window)
+#     bar3.get_tk_widget().place(x=1450, y=80)
+
+#     # Dados função de Transferência sem controle
+#     roots = np.roots(den)
+#     print(roots) # Polos # !
+
+#     maxPeakValue = np.max(response)
+#     print(maxPeakValue) # Máximo Valor de Pico
+
+#     # Instante de Pico
+#     peakTime = stepInfo['PeakTime']
+#     print(peakTime) # Instante do Valor de Pico
+
+#     # Tempo de estabilização
+#     settlingTime = stepInfo['SettlingTime']
+#     print(settlingTime) # Tempo de estabilização
+
+#     # Ultrapassagem percentual
+#     overshootPercentage = stepInfo['Overshoot']
+#     print(overshootPercentage) # Ultrapassagem percentual
+
+#     # Valor final
+#     finalValue = stepInfo['SteadyStateValue']
+#     print(finalValue) # Valor final
+
+#     # Frequência de Corte
+#     frequencyCutoff = omega[frequencyCutoffIndex]
+#     print(frequencyCutoff)
+
+#     # Ganho de Margem
+#     print(marginGain)
+
+#     # Ganho de Fase
+#     print(phaseGain)
+
+#     return roots, maxPeakValue, peakTime, settlingTime, overshootPercentage, finalValue, frequencyCutoff, marginGain, phaseGain
+
+def plotGetData(FTMF, den, control):
+    if control:
+        y = 575
+    else:
+        y = 80
 
     time, response = ctl.step_response(FTMF)
     stepInfo = ctl.step_info(FTMF)
-    
+
     time_simulation = np.arange(0, 15, 0.05, dtype=float)
     xout, yout = ctl.step_response(FTMF, time_simulation)
+
+    omega, magnitude, phase = ctl.bode(FTMF)
+    frequencyCutoffIndex = np.argmax(magnitude < -3)
+
+    marginGain, phaseGain, _, _ = ctl.margin(FTMF) 
 
     # de fato plotar e inserir no tkinter # ! GRÁFICO DA RESPOSTA AO DEGRAU
     figure1 = plt.figure(figsize=(4.2, 4.2), dpi=100)
     ax1 = figure1.add_subplot(111)
     bar1 = FigureCanvasTkAgg(figure1, window)
-    bar1.get_tk_widget().place(x=450, y=80)
+    bar1.get_tk_widget().place(x=450, y=y)
     ax1.plot(xout, yout)
 
     # de fato obter polos e inserir no tkinter # ! GRÁFICO DOS POLOS
     figure2 = plt.figure(figsize=(4.2, 4.2), dpi=100)
-    roots, _ = ctl.root_locus(system, plot=True)
-    bar2 = FigureCanvasTkAgg(plt.gcf(), window)
-    bar2.get_tk_widget().place(x=950, y=80)
-
-    # de fato obter bode e inserir no tkinter
-    figure3 = plt.figure(figsize=(4.2, 4.2), dpi=100)
-    ax3 = figure3.add_subplot(111)
-    frequency = np.logspace(-1, 2, 100)
-    _, mag, phase = ctl.bode_plot(system, omega=frequency, dB=True)
-    ax3.semilogx(frequency, mag)
-    bar3 = FigureCanvasTkAgg(figure3, window)
-    bar3.get_tk_widget().place(x=1450, y=80)
-
-    # Dados função de Transferência sem controle
-    roots = np.roots(den)
-    print(roots) # Polos # !
-
-    maxPeakValue = np.max(response)
-    print(maxPeakValue) # Máximo Valor de Pico
-
-    # Instante de Pico
-    peakTime = stepInfo['PeakTime']
-    print(peakTime) # Instante do Valor de Pico
-
-    # Tempo de estabilização
-    settlingTime = stepInfo['SettlingTime']
-    print(settlingTime) # Tempo de estabilização
-
-    # Ultrapassagem percentual
-    overshootPercentage = stepInfo['Overshoot']
-    print(overshootPercentage) # Ultrapassagem percentual
-
-    # Valor final
-    finalValue = stepInfo['SteadyStateValue']
-    print(finalValue) # Valor final
-
-    return roots, maxPeakValue, peakTime, settlingTime, overshootPercentage, finalValue
-
-def plotWithControl(system, FTMF, den):
-    plt.close()
-    time, response = ctl.step_response(FTMF)
-    stepInfo = ctl.step_info(FTMF)
-
-    time_simulation = np.arange(0, 15, 0.05, dtype=float)
-    xout, yout = ctl.step_response(FTMF, time_simulation)
-
-    # de fato plotar e inserir no tkinter # ! GRÁFICO DA RESPOSTA AO DEGRAU
-    figure1 = plt.figure(figsize=(4.2, 4.2), dpi=100)
-    ax1 = figure1.add_subplot(111)
-    bar1 = FigureCanvasTkAgg(figure1, window)
-    bar1.get_tk_widget().place(x=450, y=575)
-    ax1.plot(xout, yout)
-
-    # de fato obter polos e inserir no tkinter # ! GRÁFICO DOS POLOS
-    figure2 = plt.figure(figsize=(4.2, 4.2), dpi=100)
-    plt.legend().set_visible(False)
     roots, _ = ctl.root_locus(FTMF, plot=True)
     bar2 = FigureCanvasTkAgg(plt.gcf(), window)
-    bar2.get_tk_widget().place(x=950, y=575)
+    bar2.get_tk_widget().place(x=950, y=y)
 
     # de fato obter bode e inserir no tkinter
     figure3 = plt.figure(figsize=(4.2, 4.2), dpi=100)
@@ -121,7 +140,7 @@ def plotWithControl(system, FTMF, den):
     _, mag, phase = ctl.bode_plot(FTMF, omega=frequency, dB=True, plot=True)
     ax3.semilogx(frequency, mag)
     bar3 = FigureCanvasTkAgg(figure3, window)
-    bar3.get_tk_widget().place(x=1450, y=575)
+    bar3.get_tk_widget().place(x=1450, y=y)
 
     # Dados função de Transferência sem controle
     roots = np.roots(den)
@@ -146,7 +165,26 @@ def plotWithControl(system, FTMF, den):
     finalValue = stepInfo['SteadyStateValue']
     print(finalValue) # Valor final
 
-    return roots, maxPeakValue, peakTime, settlingTime, overshootPercentage, finalValue
+    # Frequência de Corte
+    frequencyCutoff = omega[frequencyCutoffIndex]
+    print(frequencyCutoff)
+
+    # Ganho de Margem
+    print(marginGain)
+
+    # Ganho de Fase
+    print(phaseGain)
+
+    # Ganho em dB
+    dBGain = ctl.mag2db(np.abs(magnitude))
+    dBGain = dBGain[0]
+    print(dBGain)
+
+    # Ganho estático
+    staticGain = 10 ** (dBGain / 20)
+    print(staticGain)
+
+    return roots, maxPeakValue, peakTime, settlingTime, overshootPercentage, finalValue, frequencyCutoff, marginGain, phaseGain, dBGain, staticGain
 
 def updateData():
     if not entry_3.get() and entry_4.get() and entry_5.get():
@@ -175,33 +213,33 @@ def updateData():
     if entry_3.get() and not entry_4.get() and not entry_5.get(): # proporcional
         K = int(entry_3.get())
         FTMFP = ctl.minreal((K * system) / (1 + (K * system)))
-        rootsControl, maxPeakValueControl, peakTimeControl, settlingTimeControl, overshootPercentageControl, finalValueControl = plotWithControl(system, FTMFP, den)
+        rootsControl, maxPeakValueControl, peakTimeControl, settlingTimeControl, overshootPercentageControl, finalValueControl, frequencyCutoffControl, marginGainControl, phaseGainControl, dBGainControl, staticGainControl = plotGetData(FTMFP, den, True)
         
     elif not entry_3.get() and entry_4.get() and not entry_5.get(): # integrativa
         Ki = int(entry_4.get())
         integralController = ctl.TransferFunction(Ki, [1, 0])
         FTMFI = ctl.minreal((integralController * system) / (1 + (integralController * system)))
-        rootsControl, maxPeakValueControl, peakTimeControl, settlingTimeControl, overshootPercentageControl, finalValueControl = plotWithControl(system, FTMFI, den)
+        rootsControl, maxPeakValueControl, peakTimeControl, settlingTimeControl, overshootPercentageControl, finalValueControl, frequencyCutoffControl, marginGainControl, phaseGainControl, dBGainControl, staticGainControl = plotGetData(FTMFI, den, True)
 
     elif not entry_3.get() and not entry_4.get() and entry_5.get(): # derivativa
         Kd = int(entry_5.get())
         derivativeController = ctl.TransferFunction([Kd, 0], [1]) # ? perguntar thabatta
         FTMFD = ctl.minreal((derivativeController * system) / (1 + (derivativeController * system)))
-        rootsControl, maxPeakValueControl, peakTimeControl, settlingTimeControl, overshootPercentageControl, finalValueControl = plotWithControl(system, FTMFD, den)
+        rootsControl, maxPeakValueControl, peakTimeControl, settlingTimeControl, overshootPercentageControl, finalValueControl, frequencyCutoffControl, marginGainControl, phaseGainControl, dBGainControl, staticGainControl = plotGetData(FTMFD, den, True)
 
     elif entry_3.get() and entry_4.get() and not entry_5.get(): # proporcional - integrativa
         K = int(entry_3.get())
         Ki = int(entry_4.get())
         PIController = ctl.TransferFunction([K, Ki], [1, 0])
         FTMFPI = ctl.minreal((PIController * system) / (1 + (PIController * system)))
-        rootsControl, maxPeakValueControl, peakTimeControl, settlingTimeControl, overshootPercentageControl, finalValueControl = plotWithControl(system, FTMFPI, den)
+        rootsControl, maxPeakValueControl, peakTimeControl, settlingTimeControl, overshootPercentageControl, finalValueControl, frequencyCutoffControl, marginGainControl, phaseGainControl, dBGainControl, staticGainControl = plotGetData(FTMFPI, den, True)
 
     elif entry_3.get() and not entry_4.get() and entry_5.get(): # proporcional - derivativa
         K = int(entry_3.get())
         Kd = int(entry_5.get())
         PDController = ctl.TransferFunction([K, Kd], [1])
         FTMFPD = ctl.minreal((PDController * system) / (1 + (PDController * system)))
-        rootsControl, maxPeakValueControl, peakTimeControl, settlingTimeControl, overshootPercentageControl, finalValueControl = plotWithControl(system, FTMFPD, den)
+        rootsControl, maxPeakValueControl, peakTimeControl, settlingTimeControl, overshootPercentageControl, finalValueControl, frequencyCutoffControl, marginGainControl, phaseGainControl, dBGainControl, staticGainControl = plotGetData(FTMFPD, den, True)
 
     elif entry_3.get() and entry_4.get() and entry_5.get(): # proporcional - integrativa - derivativa
         K = int(entry_3.get())
@@ -209,9 +247,9 @@ def updateData():
         Kd = int(entry_5.get())
         PIDController = ctl.TransferFunction([Kd, K, Ki], [1, 0])
         FTMFPID = ctl.minreal((PIDController * system) / (1 + (PIDController * system)))
-        rootsControl, maxPeakValueControl, peakTimeControl, settlingTimeControl, overshootPercentageControl, finalValueControl = plotWithControl(system, FTMFPID, den)
+        rootsControl, maxPeakValueControl, peakTimeControl, settlingTimeControl, overshootPercentageControl, finalValueControl, frequencyCutoffControl, marginGainControl, phaseGainControl, dBGainControl, staticGainControl = plotGetData(FTMFPID, den, True)
 
-    roots, maxPeakValue, peakTime, settlingTime, overshootPercentage, finalValue = plotWithoutControl(system, FTMF, den)
+    roots, maxPeakValue, peakTime, settlingTime, overshootPercentage, finalValue, frequencyCutoff, marginGain, phaseGain, dBGain, staticGain = plotGetData(FTMF, den, False)
 
     # ! COMEÇA AQUI AS CAGADA
     if entry_3.get() or entry_4.get() or entry_5.get():
@@ -221,7 +259,12 @@ def updateData():
             ("Pico (t)", f'{peakTime:.3f}', f'{peakTimeControl:.3f}'),
             ("Estabilização (t)", f'{settlingTime:.3f}', f'{settlingTimeControl:.3f}'),
             ("Overshoot (%)", f'{overshootPercentage:.3f}', f'{overshootPercentageControl:.3f}'),
-            ("Valor final", f'{finalValue:.3f}', f'{finalValueControl:.3f}')
+            ("Valor final", f'{finalValue:.3f}', f'{finalValueControl:.3f}'),
+            ("Freq. Corte (Rad/s)", f'{frequencyCutoff:.3f}', f'{frequencyCutoffControl:.3f}'),
+            ("Margem de Ganho", f'{marginGain:.3f}', f'{marginGainControl:.3f}'),
+            ("Margem de Fase", f'{phaseGain:.3f}', f'{phaseGainControl:.3f}'),
+            ("Ganho (dB)", f'{dBGain:.3f}', f'{dBGainControl:.3f}'),
+            ("Ganho Estático", f'{staticGain:.3f}', f'{staticGainControl:.3f}')
         ]
     else:
         dados_tabela = [
@@ -230,13 +273,18 @@ def updateData():
             ("Pico (t)", f'{peakTime:.3f}', 0),
             ("Estabilização (t)", f'{settlingTime:.3f}', 0),
             ("Overshoot (%)", f'{overshootPercentage:.3f}', 0),
-            ("Valor final", f'{finalValue:.3f}', 0)
+            ("Valor final", f'{finalValue:.3f}', 0),
+            ("Freq. Corte (Rad/s)", f'{frequencyCutoff:.3f}', 0),
+            ("Margem de Ganho", f'{marginGain:.3f}', 0),
+            ("Margem de Fase", f'{phaseGain:.3f}', 0),
+            ("Ganho (dB)", f'{dBGain:.3f}', 0),
+            ("Ganho Estático", f'{staticGain:.3f}', 0)
         ]
 
     style = ttk.Style()
     style.configure("Treeview", background='black', foreground="white")
 
-    table = ttk.Treeview(window, height=6, style="Treeview")
+    table = ttk.Treeview(window, height=11, style="Treeview")
     table['columns'] = ('', 'Sem controle', 'Com controle')
     table.column('#0', width=0, stretch=False)
     table.column('', anchor="center", width=120)
@@ -253,7 +301,6 @@ def updateData():
 
     table.place(x=18, y=550)
     
-
 
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
