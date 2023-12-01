@@ -34,75 +34,6 @@ def verifyValues(num, den):
     numArr, denArr = stringToArray(num, den)
     return numArr, denArr
 
-# def plotWithoutControl(FTMF, den):
-#     time, response = ctl.step_response(FTMF)
-#     stepInfo = ctl.step_info(FTMF)
-
-#     time_simulation = np.arange(0, 15, 0.05, dtype=float)
-#     xout, yout = ctl.step_response(FTMF, time_simulation)
-
-#     omega, magnitude, phase = ctl.bode(FTMF)
-#     frequencyCutoffIndex = np.argmax(magnitude < -3)
-
-#     marginGain, phaseGain, _, _ = ctl.margin(FTMF) 
-
-#     # de fato plotar e inserir no tkinter # ! GRÁFICO DA RESPOSTA AO DEGRAU
-#     figure1 = plt.figure(figsize=(4.2, 4.2), dpi=100)
-#     ax1 = figure1.add_subplot(111)
-#     bar1 = FigureCanvasTkAgg(figure1, window)
-#     bar1.get_tk_widget().place(x=450, y=80)
-#     ax1.plot(xout, yout)
-
-#     # de fato obter polos e inserir no tkinter # ! GRÁFICO DOS POLOS
-#     figure2 = plt.figure(figsize=(4.2, 4.2), dpi=100)
-#     roots, _ = ctl.root_locus(FTMF, plot=True)
-#     bar2 = FigureCanvasTkAgg(plt.gcf(), window)
-#     bar2.get_tk_widget().place(x=950, y=80)
-
-#     # de fato obter bode e inserir no tkinter
-#     figure3 = plt.figure(figsize=(4.2, 4.2), dpi=100)
-#     ax3 = figure3.add_subplot(111)
-#     frequency = np.logspace(-1, 2, 100)
-#     _, mag, phase = ctl.bode_plot(FTMF, omega=frequency, dB=True)
-#     ax3.semilogx(frequency, mag)
-#     bar3 = FigureCanvasTkAgg(figure3, window)
-#     bar3.get_tk_widget().place(x=1450, y=80)
-
-#     # Dados função de Transferência sem controle
-#     roots = np.roots(den)
-#     print(roots) # Polos # !
-
-#     maxPeakValue = np.max(response)
-#     print(maxPeakValue) # Máximo Valor de Pico
-
-#     # Instante de Pico
-#     peakTime = stepInfo['PeakTime']
-#     print(peakTime) # Instante do Valor de Pico
-
-#     # Tempo de estabilização
-#     settlingTime = stepInfo['SettlingTime']
-#     print(settlingTime) # Tempo de estabilização
-
-#     # Ultrapassagem percentual
-#     overshootPercentage = stepInfo['Overshoot']
-#     print(overshootPercentage) # Ultrapassagem percentual
-
-#     # Valor final
-#     finalValue = stepInfo['SteadyStateValue']
-#     print(finalValue) # Valor final
-
-#     # Frequência de Corte
-#     frequencyCutoff = omega[frequencyCutoffIndex]
-#     print(frequencyCutoff)
-
-#     # Ganho de Margem
-#     print(marginGain)
-
-#     # Ganho de Fase
-#     print(phaseGain)
-
-#     return roots, maxPeakValue, peakTime, settlingTime, overshootPercentage, finalValue, frequencyCutoff, marginGain, phaseGain
-
 def plotGetData(FTMF, den, control):
     if control:
         canvas.create_text(
@@ -128,20 +59,20 @@ def plotGetData(FTMF, den, control):
 
     marginGain, phaseGain, _, _ = ctl.margin(FTMF) 
 
-    # de fato plotar e inserir no tkinter # ! GRÁFICO DA RESPOSTA AO DEGRAU
+    # Resposta ao degrau
     figure1 = plt.figure(figsize=(4.2, 4.2), dpi=100)
     ax1 = figure1.add_subplot(111)
     bar1 = FigureCanvasTkAgg(figure1, window)
     bar1.get_tk_widget().place(x=450, y=y)
     ax1.plot(xout, yout)
 
-    # de fato obter polos e inserir no tkinter # ! GRÁFICO DOS POLOS
+    # dPolos
     figure2 = plt.figure(figsize=(4.2, 4.2), dpi=100)
     roots, _ = ctl.root_locus(FTMF, plot=True)
     bar2 = FigureCanvasTkAgg(plt.gcf(), window)
     bar2.get_tk_widget().place(x=950, y=y)
 
-    # de fato obter bode e inserir no tkinter
+    # Bode
     figure3 = plt.figure(figsize=(4.2, 4.2), dpi=100)
     ax3 = figure3.add_subplot(111)
     frequency = np.logspace(-1, 2, 100)
@@ -150,47 +81,31 @@ def plotGetData(FTMF, den, control):
     bar3 = FigureCanvasTkAgg(figure3, window)
     bar3.get_tk_widget().place(x=1450, y=y)
 
-    # Dados função de Transferência sem controle
     roots = np.roots(den)
-    print(roots) # Polos # !
 
     maxPeakValue = np.max(response)
-    print(maxPeakValue) # Máximo Valor de Pico
 
     # Instante de Pico
     peakTime = stepInfo['PeakTime']
-    print(peakTime) # Instante do Valor de Pico
 
     # Tempo de estabilização
     settlingTime = stepInfo['SettlingTime']
-    print(settlingTime) # Tempo de estabilização
 
     # Ultrapassagem percentual
     overshootPercentage = stepInfo['Overshoot']
-    print(overshootPercentage) # Ultrapassagem percentual
 
     # Valor final
     finalValue = stepInfo['SteadyStateValue']
-    print(finalValue) # Valor final
 
     # Frequência de Corte
     frequencyCutoff = omega[frequencyCutoffIndex]
-    print(frequencyCutoff)
-
-    # Ganho de Margem
-    print(marginGain)
-
-    # Ganho de Fase
-    print(phaseGain)
 
     # Ganho em dB
     dBGain = ctl.mag2db(np.abs(magnitude))
     dBGain = dBGain[0]
-    print(dBGain)
 
     # Ganho estático
     staticGain = 10 ** (dBGain / 20)
-    print(staticGain)
 
     return roots, maxPeakValue, peakTime, settlingTime, overshootPercentage, finalValue, frequencyCutoff, marginGain, phaseGain, dBGain, staticGain
 
@@ -259,7 +174,6 @@ def updateData():
 
     roots, maxPeakValue, peakTime, settlingTime, overshootPercentage, finalValue, frequencyCutoff, marginGain, phaseGain, dBGain, staticGain = plotGetData(FTMF, den, False)
 
-    # ! COMEÇA AQUI AS CAGADA
     if entry_3.get() or entry_4.get() or entry_5.get():
         dados_tabela = [
             ("Raízes", roots, rootsControl),
